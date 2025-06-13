@@ -24,14 +24,13 @@ A organização das pastas pode seguir a seguinte estrutura (sugestão):
 ```
 /
 ├── 📄 README.md
-├── 📁 Projeto FInal/
-│   ├── 🖼️ logo.png
-│   └── 🖼️ background.jpg
-├── 📁 icones/
-│   ├── ✨ icone-usuario.svg
-│   └── ✨ icone-configuracoes.svg
-└── 📁 videos/
-    └── 📹 video-apresentacao.mp4
+└── 📁 Projto FInal/
+    ├── 📁 __pycache__/
+    │   └── 📄 database.cpython-313.pyc
+    ├── 🐍 database.py
+    ├── 🗃️ locadora.db
+    ├── 🐍 teste.py
+    └── 🐍 teste2.py
 
 ```
 
