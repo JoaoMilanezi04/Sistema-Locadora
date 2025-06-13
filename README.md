@@ -52,5 +52,3 @@ git push origin main
 ```
 
 ---
-
-*Este é um repositório pessoal para fins de organização e estudo.*
