@@ -411,9 +411,8 @@ def historico_alugueis_cliente(cpf_cliente):
         
     conn, cursor = connect_db()
     cursor.execute("""
-        SELECT a.data_retirada, a.data_devolucao, c.marca, c.modelo, a.valor_total, a.status
+        SELECT a.data_retirada, a.data_devolucao, a.placa_carro, a.valor_total, a.status
         FROM alugueis a
-        JOIN carros c ON a.placa_carro = c.placa
         WHERE a.cpf_cliente = ?
         ORDER BY a.data_retirada DESC
     """, (re.sub(r'[^0-9]', '', cpf_cliente),))
@@ -449,19 +448,3 @@ if __name__ == '__main__':
     print("Verificando e criando o banco de dados, se necessário...")
     criar_tabelas()
     print("Banco de dados pronto para uso.")
-    
-    print("\n--- Testando CRUD de Clientes ---")
-    
-    # Adicionar um cliente
-    cpf_teste = "11122233344"
-    sucesso, mensagens = adicionar_cliente(cpf_teste, "Maria Souza", "41912345678", "maria.souza@teste.com")
-    print(f"Adicionar: {'Sucesso' if sucesso else 'Falha'}: {mensagens[0]}")
-
-    # Atualizar o cliente
-    sucesso, mensagens = atualizar_cliente(cpf_teste, "Maria Aparecida Souza", "41987654321", "maria.a.souza@teste.com")
-    print(f"Atualizar: {'Sucesso' if sucesso else 'Falha'}: {mensagens[0]}")
-    
-    # Tentar remover (pode falhar se houver aluguéis)
-    sucesso, mensagens = remover_cliente(cpf_teste)
-    print(f"Remover: {'Sucesso' if sucesso else 'Falha'}: {mensagens[0]}")
-
