@@ -44,4 +44,3 @@ A organização dos arquivos do projeto é a seguinte:
 /
 ├── 🐍 database.py         # Módulo de backend, com toda a lógica de negócio e acesso ao banco de dados.
 ├── 🐍 interface.py        # Módulo de frontend, responsável pela construção da interface gráfica com Tkinter.
-├── 🗃️ locadora.db         # Arquivo do banco de dados SQLite.
