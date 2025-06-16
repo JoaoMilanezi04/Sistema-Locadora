@@ -1,6 +1,6 @@
 import sqlite3
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from contextlib import contextmanager
 import math
 
@@ -70,6 +70,34 @@ def criar_tabelas():
                 FOREIGN KEY (placa_carro) REFERENCES carros(placa) ON DELETE RESTRICT ON UPDATE CASCADE,
                 FOREIGN KEY (cpf_cliente) REFERENCES clientes(cpf) ON DELETE RESTRICT ON UPDATE CASCADE
             );""")
+            
+            # Tabela de Filmes
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS filmes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    titulo TEXT NOT NULL,
+                    genero TEXT NOT NULL,
+                    ano INTEGER NOT NULL,
+                    disponivel BOOLEAN DEFAULT 1
+                )
+            ''')
+    
+            # Tabela de Locações
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS locacoes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    cliente_id INTEGER NOT NULL,
+                    filme_id INTEGER NOT NULL,
+                    data_locacao DATE NOT NULL,
+                    data_devolucao_prevista DATE NOT NULL,
+                    data_devolucao_real DATE,
+                    valor REAL NOT NULL,
+                    multa REAL DEFAULT 0,
+                    status TEXT DEFAULT 'ativo',
+                    FOREIGN KEY (cliente_id) REFERENCES clientes (id),
+                    FOREIGN KEY (filme_id) REFERENCES filmes (id)
+                )
+            ''')
     except sqlite3.Error as e:
         print(f"Erro ao criar tabelas: {e}")
 
@@ -480,6 +508,157 @@ def calcular_faturamento_periodo(data_inicio, data_fim):
         return (True, faturamento)
     except sqlite3.Error as e:
         return (False, f"Erro no banco de dados ao calcular faturamento: {e}")
+
+def conectar():
+    """Abre uma conexão com o banco de dados SQLite local."""
+    return sqlite3.connect('locadora.db')
+
+def adicionar_filme(titulo, genero, ano):
+    """Adiciona um novo filme ao banco de dados."""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO filmes (titulo, genero, ano) VALUES (?, ?, ?)', 
+                   (titulo, genero, ano))
+    conn.commit()
+    conn.close()
+
+def listar_filmes():
+    """Retorna todos os filmes cadastrados."""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM filmes')
+    filmes = cursor.fetchall()
+    conn.close()
+    return filmes
+
+def buscar_filmes(termo):
+    """Busca filmes por título ou gênero."""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('''SELECT * FROM filmes 
+                     WHERE titulo LIKE ? OR genero LIKE ?''', 
+                   (f'%{termo}%', f'%{termo}%'))
+    filmes = cursor.fetchall()
+    conn.close()
+    return filmes
+
+def editar_filme(id_filme, titulo, genero, ano):
+    """Edita os dados de um filme existente."""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('''UPDATE filmes 
+                     SET titulo = ?, genero = ?, ano = ? 
+                     WHERE id = ?''', 
+                   (titulo, genero, ano, id_filme))
+    conn.commit()
+    conn.close()
+
+def excluir_filme(id_filme):
+    """Remove um filme do banco de dados."""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM filmes WHERE id = ?', (id_filme,))
+    conn.commit()
+    conn.close()
+
+def criar_locacao(cliente_id, filme_id, valor, dias=7):
+    """
+    Cria uma nova locação para um cliente e marca o filme como indisponível.
+    Por padrão, a locação é de 7 dias.
+    """
+    conn = conectar()
+    cursor = conn.cursor()
+    
+    data_locacao = datetime.now().date()
+    data_devolucao_prevista = data_locacao + timedelta(days=dias)
+    
+    cursor.execute('''INSERT INTO locacoes 
+                     (cliente_id, filme_id, data_locacao, data_devolucao_prevista, valor) 
+                     VALUES (?, ?, ?, ?, ?)''', 
+                   (cliente_id, filme_id, data_locacao, data_devolucao_prevista, valor))
+    
+    cursor.execute('UPDATE filmes SET disponivel = 0 WHERE id = ?', (filme_id,))
+    
+    conn.commit()
+    conn.close()
+
+def listar_locacoes():
+    """Retorna todas as locações, incluindo informações do cliente e do filme."""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('''SELECT l.id, c.nome, f.titulo, l.data_locacao, 
+                            l.data_devolucao_prevista, l.data_devolucao_real, 
+                            l.valor, l.multa, l.status
+                     FROM locacoes l
+                     JOIN clientes c ON l.cliente_id = c.id
+                     JOIN filmes f ON l.filme_id = f.id''')
+    locacoes = cursor.fetchall()
+    conn.close()
+    return locacoes
+
+def devolver_filme(id_locacao):
+    """
+    Processa a devolução de um filme.
+    Calcula multa se houver atraso e libera o filme para nova locação.
+    """
+    conn = conectar()
+    cursor = conn.cursor()
+    
+    data_devolucao_real = datetime.now().date()
+    
+    cursor.execute('SELECT data_devolucao_prevista, filme_id FROM locacoes WHERE id = ?', 
+                   (id_locacao,))
+    result = cursor.fetchone()
+    
+    if result:
+        data_prevista, filme_id = result
+        multa = 0
+        
+        if isinstance(data_prevista, str):
+            data_prevista = datetime.strptime(data_prevista, '%Y-%m-%d').date()
+        
+        # Regra de negócio: multa de R$2,00 por dia de atraso
+        if data_devolucao_real > data_prevista:
+            dias_atraso = (data_devolucao_real - data_prevista).days
+            multa = dias_atraso * 2.0
+        
+        cursor.execute('''UPDATE locacoes 
+                         SET data_devolucao_real = ?, multa = ?, status = 'devolvido' 
+                         WHERE id = ?''', 
+                       (data_devolucao_real, multa, id_locacao))
+        
+        cursor.execute('UPDATE filmes SET disponivel = 1 WHERE id = ?', (filme_id,))
+        
+        conn.commit()
+    
+    conn.close()
+
+def obter_filmes_disponiveis():
+    """Retorna todos os filmes disponíveis para locação."""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM filmes WHERE disponivel = 1')
+    filmes = cursor.fetchall()
+    conn.close()
+    return filmes
+
+def obter_filme_por_id(filme_id):
+    """Retorna os dados de um filme pelo ID."""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM filmes WHERE id = ?', (filme_id,))
+    filme = cursor.fetchone()
+    conn.close()
+    return filme
+
+def obter_cliente_por_id(cliente_id):
+    """Retorna os dados de um cliente pelo ID."""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM clientes WHERE id = ?', (cliente_id,))
+    cliente = cursor.fetchone()
+    conn.close()
+    return cliente
 
 if __name__ == '__main__':
     print("Verificando tabela")
