@@ -1,46 +1,56 @@
-🚗 Sistema de Gerenciamento de Locadora de Veículos
-Este é um sistema de desktop completo para o gerenciamento de uma locadora de veículos, desenvolvido em Python com uma interface gráfica intuitiva construída com a biblioteca Tkinter. O projeto utiliza um banco de dados SQLite para persistência de dados.
+# 🚗 Sistema de Gerenciamento de Locadora de Veículos
 
-🎯 Sobre o Projeto
-Este sistema foi desenvolvido como um projeto de faculdade, a aplicação simula um software completo e funcional para gerenciar as operações essenciais de uma locadora, permitindo o controle de veículos, clientes e aluguéis de forma visual e amigável.
+Este é um sistema desktop completo para o gerenciamento de uma locadora de veículos. A aplicação foi desenvolvida em **Python**, com uma interface gráfica intuitiva construída utilizando **Tkinter** e banco de dados **SQLite** para persistência de dados.
 
-✨ Funcionalidades Principais
-O sistema é dividido em módulos claros, cada um com funcionalidades específicas para facilitar a gestão do negócio.
+## 🎯 Sobre o Projeto
 
-🚗 Gerenciamento de Veículos
-CRUD Completo: Cadastre, liste, atualize e remova veículos do banco de dados.
-Controle de Status: Altere o status de um veículo entre Disponível, Alugado e Em Manutenção.
-Validação de Dados: O sistema valida os campos de entrada, como o formato da placa (padrão antigo e Mercosul), ano de fabricação e valor da diária, prevenindo a inserção de dados incorretos.
+Este sistema foi desenvolvido como um projeto acadêmico com o objetivo de simular um software real para controle de uma locadora de veículos. O sistema permite:
 
-👥 Gerenciamento de Clientes
-CRUD Completo: Adicione novos clientes, consulte, atualize suas informações e remova registros.
-Validação de Dados: Garante a integridade dos dados com validação para CPF, formato de e-mail e número de telefone.
-Prevenção de Duplicidade: O sistema impede o cadastro de múltiplos clientes com o mesmo CPF ou e-mail.
+- Gerenciar veículos (cadastro, atualização, remoção e controle de status).
+- Gerenciar clientes (cadastro, atualização e remoção).
+- Realizar aluguéis e devoluções de veículos.
+- Gerar relatórios de históricos e faturamento.
 
-🔑 Módulo de Aluguéis e Devoluções
-Registro de Aluguel: Realize novos aluguéis de forma rápida, associando um cliente a um veículo disponível. O sistema atualiza o status do carro para Alugado automaticamente.
-Registro de Devolução: Finalize um aluguel, com o sistema calculando automaticamente o valor total a ser pago com base no número de dias de locação.
-Atualização Automática: Após a devolução, o status do veículo é automaticamente definido como Disponível.
+## ✨ Funcionalidades
 
-📊 Relatórios e Consultas
-Histórico Completo: Visualize o histórico de todos os aluguéis (ativos e finalizados).
-Filtro por Cliente: Consulte o histórico de aluguéis de um cliente específico utilizando o CPF.
-Cálculo de Faturamento: Calcule o faturamento total da locadora em um determinado período de tempo (data de início e fim), com base nos aluguéis finalizados.
+### 🚗 Veículos
+- ✅ Cadastro de veículos com validação de dados.
+- 🔄 Atualização e remoção.
+- 🔧 Controle de status: Disponível, Alugado e Em Manutenção.
+- 🔍 Listagem com visualização em tabela.
 
-🖥️ Interface Gráfica (UI)
-Navegação por Abas: Interface organizada para separar as áreas de Veículos, Clientes, Aluguéis e Relatórios.
-Formulários Amigáveis: Campos de entrada com placeholders que guiam o usuário sobre o formato esperado.
-Visualização em Tabelas: Listagem clara e organizada dos dados, com formatação para valores monetários, CPF e telefones.
-Sugestões e Autocompletar: Listas suspensas com placas de carros disponíveis e CPFs de clientes para agilizar o registro de aluguéis.
+### 👥 Clientes
+- ✅ Cadastro de clientes com validação de CPF, telefone e e-mail.
+- 🔄 Atualização e remoção.
+- 🔍 Listagem com dados formatados.
 
-🛠️ Tecnologias Utilizadas
-Linguagem: Python
-Interface Gráfica: Tkinter
-Banco de Dados: SQLite
-📂 Estrutura do Projeto
+### 🔑 Aluguéis
+- 🚘 Registro de novos aluguéis.
+- ↩️ Devolução de veículos, com cálculo automático de valor total.
+- 🕓 Histórico completo dos aluguéis.
+- 🧠 Sugestões automáticas de veículos disponíveis e clientes cadastrados.
 
-A organização dos arquivos do projeto é a seguinte:
+### 📊 Relatórios
+- 📜 Histórico de aluguéis geral ou por cliente (CPF).
+- 💲 Cálculo de faturamento total da locadora em um período determinado.
 
-/
-├── 🐍 database.py         # Módulo de backend, com toda a lógica de negócio e acesso ao banco de dados.
-├── 🐍 interface.py        # Módulo de frontend, responsável pela construção da interface gráfica com Tkinter.
+## 🖥️ Interface
+
+- Interface intuitiva e amigável construída com Tkinter.
+- Navegação por abas: Veículos, Clientes, Aluguéis e Relatórios.
+- Campos com placeholders, sugestões e formatação de dados (CPF, telefone, valores).
+
+## 🛠️ Tecnologias Utilizadas
+
+- 💻 **Linguagem:** Python
+- 🎨 **Interface Gráfica:** Tkinter
+- 🗄️ **Banco de Dados:** SQLite
+- 🔗 **Bibliotecas:** sqlite3, tkinter, datetime, math, re
+
+## 📦 Estrutura do Projeto
+
+📁 Sistema-Locadora
+├── 🐍 database.py # Backend: lógica, validações e operações com banco
+├── 🐍 interface.py # Frontend: interface gráfica com Tkinter
+├── 🗃️ locadora.db # Banco de dados SQLite
+└── 📄 README.md # Documentação do projeto
