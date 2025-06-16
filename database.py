@@ -318,6 +318,8 @@ def realizar_aluguel(placa_carro, cpf_cliente):
             return (False, ["Veículo com esta placa não foi encontrado."])
         if carro['status'] != 'Disponível':
             return (False, [f"Veículo não está disponível para aluguel (status atual: {carro['status']})."])
+        if carro['status'] == 'Em Manutenção':
+            return (False, ["Veículo está em manutenção."])
 
         cursor.execute("SELECT nome FROM clientes WHERE cpf = ?", (re.sub(r'[^0-9]', '', cpf_cliente),))
         if not cursor.fetchone():
