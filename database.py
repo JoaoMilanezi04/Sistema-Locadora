@@ -102,14 +102,30 @@ def validate_valor(valor):
     except (ValueError, TypeError):
         return "O valor da diária deve ser um número válido."
 
-def validate_cpf(cpf):
-    """Valida o formato do CPF (11 dígitos numéricos)."""
-    if not isinstance(cpf, str):
-        return "CPF inválido. Deve ser uma string."
-    cpf_numerico = re.sub(r'[^0-9]', '', cpf)
-    if len(cpf_numerico) != 11:
-        return "CPF inválido. Deve conter exatamente 11 dígitos."
-    return None
+def validar_cpf(cpf):
+    cpf = ''.join(filter(str.isdigit, cpf))
+    
+    if len(cpf) != 11:
+        return False
+    if cpf == cpf[0] * 11:
+        return False
+    
+    soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
+    resto = (soma * 10) % 11
+    if resto == 10:
+        resto = 0
+    if resto != int(cpf[9]):
+        return False
+    
+    soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
+    resto = (soma * 10) % 11
+
+    if resto == 10:
+        resto = 0
+    if resto != int(cpf[10]):
+        return False
+    
+    return True
 
 def validate_email(email):
     """Valida o formato básico de um e-mail."""
@@ -134,7 +150,6 @@ def validate_telefone(telefone):
 # =============================================================================
 
 def adicionar_veiculo(placa, marca, modelo, ano, cor, valor_diaria):
-    """Adiciona um veículo após validar todos os campos."""
     erros = [
         validate_placa(placa),
         is_not_empty(marca, "Marca"),
@@ -218,7 +233,7 @@ def remover_veiculo(placa):
 def adicionar_cliente(cpf, nome, telefone, email):
     """Adiciona um cliente após validar todos os campos."""
     erros = [
-        validate_cpf(cpf),
+        validar_cpf(cpf),
         is_not_empty(nome, "Nome"),
         validate_telefone(telefone),
         validate_email(email)
@@ -250,7 +265,7 @@ def adicionar_cliente(cpf, nome, telefone, email):
 def atualizar_cliente(cpf, nome, telefone, email):
     """Atualiza os dados de um cliente existente após validação."""
     erros = [
-        validate_cpf(cpf),
+        validar_cpf(cpf),
         is_not_empty(nome, "Nome"),
         validate_telefone(telefone),
         validate_email(email)
@@ -279,7 +294,7 @@ def atualizar_cliente(cpf, nome, telefone, email):
 
 def remover_cliente(cpf):
     """Remove um cliente do sistema."""
-    erro_cpf = validate_cpf(cpf)
+    erro_cpf = validar_cpf(cpf)
     if erro_cpf:
         return (False, [erro_cpf])
 
@@ -304,7 +319,7 @@ def remover_cliente(cpf):
 
 def realizar_aluguel(placa_carro, cpf_cliente):
     """Registra um novo aluguel, validando a disponibilidade e existência dos dados."""
-    erros_formato = [validate_placa(placa_carro), validate_cpf(cpf_cliente)]
+    erros_formato = [validate_placa(placa_carro), validate_placa(cpf_cliente)]
     erros_formato = [e for e in erros_formato if e is not None]
     if erros_formato:
         return (False, erros_formato)
@@ -336,7 +351,60 @@ def realizar_aluguel(placa_carro, cpf_cliente):
     finally:
         if conn:
             conn.close()
+    
+def mandar_para_manutencao(placa_carro, motivo_manutencao=""):
+    """Envia um carro para manutenção"""
+    try:
+        conn, cursor = connect_db() 
+        
+        cursor.execute("SELECT * FROM carros WHERE placa = ?", (placa_carro.upper().strip(),))
+        carro = cursor.fetchone()
+        
+        if not carro:
+            conn.close()
+            return False, "Veículo não encontrado."
+        
+        if carro[6] == 'Alugado':
+            conn.close()
+            return False, "Não é possível enviar para manutenção. Veículo está alugado."
+        
+        if carro[6] == 'Manutenção':
+            conn.close()
+            return False, "Veículo já está em manutenção."
+        
+        cursor.execute("UPDATE carros SET status = 'Manutenção' WHERE placa = ?", (placa_carro.upper().strip(),))
+        conn.commit()
+        conn.close()
+        
+        return True, "Veículo enviado para manutenção com sucesso."
+        
+    except Exception as e:
+        return False, f"Erro ao enviar para manutenção: {str(e)}"
 
+def retornar_da_manutencao(placa_carro):
+    """Retorna um carro da manutenção"""
+    try:
+        conn, cursor = connect_db()
+        
+        cursor.execute("SELECT * FROM carros WHERE placa = ?", (placa_carro.upper().strip(),))
+        carro = cursor.fetchone()
+        
+        if not carro:
+            conn.close()
+            return False, "Veículo não encontrado."
+        
+        if carro[6] != 'Manutenção':
+            conn.close()
+            return False, "Veículo não está em manutenção."
+        
+        cursor.execute("UPDATE carros SET status = 'Disponível' WHERE placa = ?", (placa_carro.upper().strip(),))
+        conn.commit()
+        conn.close()
+        
+        return True, "Veículo retornado da manutenção com sucesso."
+        
+    except Exception as e:
+        return False, f"Erro ao retornar da manutenção: {str(e)}"
 
 def realizar_devolucao(placa_carro):
     """Finaliza um aluguel ativo, calcula o valor e atualiza o status do carro."""
@@ -396,17 +464,48 @@ def listar_veiculos(status_filtro=None):
     conn.close()
     return veiculos
 
+def listar_carros():
+    try:
+        conn, cursor = connect_db()
+        cursor.execute("SELECT * FROM carros")
+        carros = cursor.fetchall()
+        conn.close()  # ADICIONAR
+        return carros
+    except Exception as e:
+        print(f"Erro ao listar carros: {e}")
+        return []
+
 def listar_clientes():
-    """Lista todos os clientes cadastrados."""
-    conn, cursor = connect_db()
-    cursor.execute("SELECT * FROM clientes ORDER BY nome")
-    clientes = [dict(row) for row in cursor.fetchall()]
-    conn.close()
-    return clientes
+    try:
+        conn, cursor = connect_db()
+        cursor.execute("SELECT * FROM clientes")
+        clientes = cursor.fetchall()
+        conn.close()  # ADICIONAR
+        return clientes
+    except Exception as e:
+        print(f"Erro ao listar clientes: {e}")
+        return []
+
+def listar_alugueis():
+    try:
+        conn, cursor = connect_db()
+        cursor.execute('''
+            SELECT a.id, c.nome, car.marca, car.modelo, car.placa, 
+                   a.data_inicio, a.data_fim, a.valor_total, a.status
+            FROM alugueis a
+            JOIN clientes c ON a.cliente_id = c.id
+            JOIN carros car ON a.carro_id = car.id
+        ''')
+        alugueis = cursor.fetchall()
+        conn.close()  # ADICIONAR
+        return alugueis
+    except Exception as e:
+        print(f"Erro ao listar aluguéis: {e}")
+        return []
 
 def historico_alugueis_cliente(cpf_cliente):
     """Retorna o histórico de aluguéis de um cliente específico."""
-    erro_cpf = validate_cpf(cpf_cliente)
+    erro_cpf = validar_cpf(cpf_cliente)
     if erro_cpf:
         print(f"Erro: {erro_cpf}")
         return []
