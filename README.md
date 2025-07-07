@@ -48,25 +48,58 @@ interface.py: Contém todo o código relacionado à interface gráfica do usuár
 
 database.py: É o módulo de acesso a dados. Contém todas as funções para interagir com o banco de dados locadora.db. Ele lida com a criação das tabelas, validações de dados e as operações de CRUD (Criar, Ler, Atualizar, Deletar) para veículos, clientes e aluguéis.
 
-Como Executar
-Para rodar o projeto, siga os passos abaixo:
+## 🚀 Como Executar
 
-Pré-requisitos:
+### Pré-requisitos
+- Python 3.8+ instalado em sua máquina
+- Git (para clonar o repositório)
 
-Certifique-se de ter o Python 3 instalado em sua máquina. O Tkinter já vem incluído na instalação padrão do Python.
+### Passos para executar
 
-Clone ou baixe os arquivos:
+1. **Clone o repositório:**
+   ```bash
+   git clone <url-do-repositorio>
+   cd Sistema-Locadora
+   ```
 
-Baixe os arquivos interface.py e database.py e salve-os no mesmo diretório.
+2. **Crie um ambiente virtual:**
+   ```bash
+   # No macOS/Linux:
+   python3 -m venv venv
+   source venv/bin/activate
+   
+   # No Windows:
+   python -m venv venv
+   venv\Scripts\activate
+   ```
 
-Execute a aplicação:
+3. **Instale as dependências (se houver):**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Abra um terminal ou prompt de comando.
+4. **Execute a aplicação:**
+   ```bash
+   python interface.py
+   ```
 
-Navegue até o diretório onde você salvou os arquivos.
+5. **Para desativar o ambiente virtual:**
+   ```bash
+   deactivate
+   ```
 
-Execute o seguinte comando:
+### Primeira Execução
+- A aplicação criará automaticamente o arquivo de banco de dados `locadora.db` no primeiro uso
+- Todas as tabelas necessárias serão criadas automaticamente
 
-python interface.py
-
-A aplicação será iniciada, e o arquivo de banco de dados locadora.db será criado automaticamente no mesmo diretório na primeira execução.
+## 📁 Estrutura do Projeto
+```
+Sistema-Locadora/
+├── venv/                 # Ambiente virtual (não versionado)
+├── interface.py          # Interface gráfica principal
+├── database.py          # Módulo de acesso ao banco de dados
+├── locadora.db          # Banco de dados SQLite (criado automaticamente)
+├── requirements.txt     # Dependências do projeto
+├── .gitignore          # Arquivos ignorados pelo Git
+└── README.md           # Documentação do projeto
+```
