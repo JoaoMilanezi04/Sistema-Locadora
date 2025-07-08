@@ -80,7 +80,7 @@ database.py: É o módulo de acesso a dados. Contém todas as funções para int
 
 4. **Execute a aplicação:**
    ```bash
-   python interface.py
+   python main.py
    ```
 
 5. **Para desativar o ambiente virtual:**
@@ -96,10 +96,13 @@ database.py: É o módulo de acesso a dados. Contém todas as funções para int
 ```
 Sistema-Locadora/
 ├── venv/                 # Ambiente virtual (não versionado)
-├── interface.py          # Interface gráfica principal
+├── main.py              # Arquivo principal de execução
+├── interface.py          # Interface gráfica do usuário
 ├── database.py          # Módulo de acesso ao banco de dados
 ├── locadora.db          # Banco de dados SQLite (criado automaticamente)
 ├── requirements.txt     # Dependências do projeto
+├── run.sh              # Script de execução para macOS/Linux
 ├── .gitignore          # Arquivos ignorados pelo Git
+├── COMO_EXECUTAR.md    # Instruções detalhadas de execução
 └── README.md           # Documentação do projeto
 ```

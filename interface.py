@@ -725,7 +725,3 @@ class AbaRelatorios(ttk.Frame):
             self.label_faturamento.config(text=f"Faturamento Total: {formatar_moeda(resultado)}")
         else:
             messagebox.showerror("Erro de Data", resultado[0])
-
-if __name__ == '__main__':
-    app = LocadoraApp()
-    app.mainloop()
