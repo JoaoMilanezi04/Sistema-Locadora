@@ -2,12 +2,19 @@ import sqlite3
 import re
 from datetime import datetime
 import math
+import os
 
 # =============================================================================
 # CONFIGURAÇÃO E CONEXÃO COM O BANCO DE DADOS
 # =============================================================================
 
-NOME_BANCO_DADOS = 'locadora.db'
+# Define o caminho para o banco de dados na pasta dados
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DADOS_DIR = os.path.join(PROJECT_ROOT, 'dados')
+NOME_BANCO_DADOS = os.path.join(DADOS_DIR, 'locadora.db')
+
+# Cria a pasta dados se não existir
+os.makedirs(DADOS_DIR, exist_ok=True)
 
 def conectar_bd():
     """Conecta ao banco de dados SQLite e retorna a conexão e o cursor."""

@@ -1,9 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
-# Importa as funções do seu arquivo de banco de dados
-# Certifique-se de que este arquivo se chame 'database.py' e esteja na mesma pasta
-import database as db
+# Importa as funções do módulo de banco de dados
+from . import database as db
 
 # =============================================================================
 # WIDGET PERSONALIZADO COM PLACEHOLDER

@@ -1,0 +1,19 @@
+# Dependências para o Sistema de Locadora de Veículos
+# Este projeto usa principalmente bibliotecas padrão do Python
+
+# Bibliotecas padrão incluídas no Python:
+# - tkinter (Interface gráfica)
+# - sqlite3 (Banco de dados)
+# - datetime (Manipulação de datas)
+# - re (Expressões regulares)
+# - math (Funções matemáticas)
+# - os (Sistema operacional)
+# - sys (Sistema Python)
+
+# Versão mínima do Python requerida: 3.8+
+
+# Para desenvolvimento (opcional):
+# pytest>=7.0.0          # Para testes unitários
+# black>=22.0.0           # Para formatação de código
+# flake8>=5.0.0           # Para linting
+# mypy>=1.0.0             # Para verificação de tipos
